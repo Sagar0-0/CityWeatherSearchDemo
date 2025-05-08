@@ -44,8 +44,8 @@ fun AppScreen() {
             exitTransition = {
                 slideOutHorizontally(targetOffsetX = { it })
             }
-        ) { backStackEntry ->
-            val viewModel: WeatherDetailsViewModel = hiltViewModel(backStackEntry)
+        ) {
+            val viewModel: WeatherDetailsViewModel = hiltViewModel()
             WeatherDetailsScreen(viewModel)
         }
     }
