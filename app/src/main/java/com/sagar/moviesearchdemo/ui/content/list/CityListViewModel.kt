@@ -14,8 +14,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,9 +31,8 @@ class CityListViewModel @Inject constructor(
     val eventFlow = _eventChannel.receiveAsFlow()
 
     val cityList: StateFlow<UiState<List<CitySearchResponseItem>>> = cityQuery
-        .map { it.trim() }
-        .distinctUntilChanged()
         .debounce(DEBOUNCE_TIMEOUT_MS)
+        .distinctUntilChanged()
         .flatMapLatest { query -> searchCities(query) }
         .stateIn(
             viewModelScope,
@@ -48,6 +45,7 @@ class CityListViewModel @Inject constructor(
             emit(UiState.Idle)
             return@flow
         }
+        emit(UiState.Loading)
         val response = repository.searchForCity(query)
         if (response.isSuccessful) {
             response.body()?.let {
@@ -56,7 +54,7 @@ class CityListViewModel @Inject constructor(
         } else {
             emit(UiState.Error(response.errorBody()?.string() ?: "Unknown error"))
         }
-    }.onStart { emit(UiState.Loading) }
+    }
 
     private fun updateCityQuery(query: String) {
         savedStateHandle[CITY_QUERY_KEY] = query
