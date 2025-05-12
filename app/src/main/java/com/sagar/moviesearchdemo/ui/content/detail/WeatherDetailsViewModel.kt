@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -21,26 +20,34 @@ class WeatherDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    companion object {
+        private const val CITY_NAME_KEY = "cityName"
+        private const val ERROR_NO_DATA = "No data found"
+        private const val ERROR_UNKNOWN = "Unknown error"
+    }
+
     private val cityName = savedStateHandle.getStateFlow(CITY_NAME_KEY, "")
 
     val weatherDetails: StateFlow<UiState<WeatherDetailResponse>> =
         cityName
-            .flatMapLatest {
-                flow {
-                    val response = repository.getWeatherDetails(it)
-                    if (response.isSuccessful) {
-                        response.body()?.let { weatherDetail ->
-                            emit(UiState.Success(weatherDetail))
-                        } ?: emit(UiState.Error("No data found"))
-                    } else {
-                        emit(UiState.Error(response.errorBody()?.string() ?: "Unknown error"))
-                    }
-                }.onStart { emit(UiState.Loading) }
-            }.stateIn(
-                viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading
+            .flatMapLatest { cityName ->
+                fetchWeatherDetails(cityName)
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                UiState.Loading
             )
 
-    companion object {
-        private const val CITY_NAME_KEY = "cityName"
+    private fun fetchWeatherDetails(cityName: String) = flow {
+        emit(UiState.Loading)
+        val response = repository.getWeatherDetails(cityName)
+        if (response.isSuccessful) {
+            response.body()?.let { weatherDetail ->
+                emit(UiState.Success(weatherDetail))
+            } ?: emit(UiState.Error(ERROR_NO_DATA))
+        } else {
+            emit(UiState.Error(response.errorBody()?.string() ?: ERROR_UNKNOWN))
+        }
     }
 }
