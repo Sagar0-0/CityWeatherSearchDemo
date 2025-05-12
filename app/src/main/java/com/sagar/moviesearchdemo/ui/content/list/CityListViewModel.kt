@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.sagar.moviesearchdemo.data.list.CityListRepository
 import com.sagar.moviesearchdemo.data.list.CitySearchResponseItem
 import com.sagar.moviesearchdemo.ui.content.UiState
-import com.sagar.moviesearchdemo.ui.content.list.CityListViewModel.CityListUiEvent.OnCitySelected
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,43 +35,41 @@ class CityListViewModel @Inject constructor(
     val cityList: StateFlow<UiState<List<CitySearchResponseItem>>> = cityQuery
         .map { it.trim() }
         .distinctUntilChanged()
-        .debounce(300)
-        .flatMapLatest { query ->
-            flow {
-                if (query.trim().isBlank()) {
-                    emit(UiState.Idle)
-                    return@flow
-                }
-                val response = repository.searchForCity(query)
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        emit(UiState.Success(it))
-                    } ?: emit(UiState.Error("No data found"))
-                } else {
-                    emit(UiState.Error(response.errorBody()?.string() ?: "Unknown error"))
-                }
-            }.onStart { emit(UiState.Loading) }
-        }
+        .debounce(DEBOUNCE_TIMEOUT_MS)
+        .flatMapLatest { query -> searchCities(query) }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             UiState.Idle
         )
 
-    private fun onCityQueryChange(query: String) {
+    private fun searchCities(query: String) = flow {
+        if (query.isBlank()) {
+            emit(UiState.Idle)
+            return@flow
+        }
+        val response = repository.searchForCity(query)
+        if (response.isSuccessful) {
+            response.body()?.let {
+                emit(UiState.Success(it))
+            } ?: emit(UiState.Error("No data found"))
+        } else {
+            emit(UiState.Error(response.errorBody()?.string() ?: "Unknown error"))
+        }
+    }.onStart { emit(UiState.Loading) }
+
+    private fun updateCityQuery(query: String) {
         savedStateHandle[CITY_QUERY_KEY] = query
     }
 
     fun onAction(uiAction: CityListUiAction) {
         when (uiAction) {
-            is CityListUiAction.OnQueryChange -> onCityQueryChange(uiAction.query)
-            is CityListUiAction.OnCitySelected -> {
-                sendEvent(OnCitySelected(uiAction.cityName))
-            }
+            is CityListUiAction.OnQueryChange -> updateCityQuery(uiAction.query)
+            is CityListUiAction.OnCitySelected -> sendEvent(CityListUiEvent.OnCitySelected(uiAction.cityName))
         }
     }
 
-    fun sendEvent(event: CityListUiEvent) {
+    private fun sendEvent(event: CityListUiEvent) {
         viewModelScope.launch {
             _eventChannel.send(event)
         }
@@ -80,6 +77,7 @@ class CityListViewModel @Inject constructor(
 
     companion object {
         private const val CITY_QUERY_KEY = "city_query"
+        private const val DEBOUNCE_TIMEOUT_MS = 300L
     }
 
     sealed interface CityListUiEvent {
