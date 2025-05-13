@@ -1,7 +1,7 @@
 package com.sagar.moviesearchdemo.data.detail
 
 import com.sagar.moviesearchdemo.data.WeatherApiService
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 import java.io.IOException
 
@@ -14,7 +14,7 @@ class WeatherDetailRepositoryImpl(
         } catch (e: IOException) {
             Response.error(
                 500,
-                ResponseBody.create(null, "Network error: ${e.localizedMessage}")
+                "Network error: ${e.localizedMessage}".toResponseBody(null)
             )
         }
     }

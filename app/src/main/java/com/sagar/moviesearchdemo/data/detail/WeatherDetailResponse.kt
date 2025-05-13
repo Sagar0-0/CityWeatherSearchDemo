@@ -3,95 +3,95 @@ package com.sagar.moviesearchdemo.data.detail
 import com.google.gson.annotations.SerializedName
 
 data class WeatherDetailResponse(
-    val current: Current,
-    val location: Location
+    val current: Current = Current(),
+    val location: Location = Location()
 ) {
     data class Current(
         @SerializedName("cloud")
-        val cloud: Int,
+        val cloud: Int = 0,
         @SerializedName("condition")
-        val condition: Condition,
+        val condition: Condition = Condition(),
         @SerializedName("dewpoint_c")
-        val dewpointC: Double,
+        val dewpointC: Double = 0.0,
         @SerializedName("dewpoint_f")
-        val dewpointF: Double,
+        val dewpointF: Double = 0.0,
         @SerializedName("feelslike_c")
-        val feelslikeC: Double,
+        val feelslikeC: Double = 0.0,
         @SerializedName("feelslike_f")
-        val feelslikeF: Double,
+        val feelslikeF: Double = 0.0,
         @SerializedName("gust_kph")
-        val gustKph: Double,
+        val gustKph: Double = 0.0,
         @SerializedName("gust_mph")
-        val gustMph: Double,
+        val gustMph: Double = 0.0,
         @SerializedName("heatindex_c")
-        val heatindexC: Double,
+        val heatindexC: Double = 0.0,
         @SerializedName("heatindex_f")
-        val heatindexF: Double,
+        val heatindexF: Double = 0.0,
         @SerializedName("humidity")
-        val humidity: Int,
+        val humidity: Int = 0,
         @SerializedName("is_day")
-        val isDay: Int,
+        val isDay: Int = 0,
         @SerializedName("last_updated")
-        val lastUpdated: String,
+        val lastUpdated: String = "",
         @SerializedName("last_updated_epoch")
-        val lastUpdatedEpoch: Int,
+        val lastUpdatedEpoch: Int = 0,
         @SerializedName("precip_in")
-        val precipIn: Double,
+        val precipIn: Double = 0.0,
         @SerializedName("precip_mm")
-        val precipMm: Double,
+        val precipMm: Double = 0.0,
         @SerializedName("pressure_in")
-        val pressureIn: Double,
+        val pressureIn: Double = 0.0,
         @SerializedName("pressure_mb")
-        val pressureMb: Double,
+        val pressureMb: Double = 0.0,
         @SerializedName("temp_c")
-        val tempC: Double,
+        val tempC: Double = 0.0,
         @SerializedName("temp_f")
-        val tempF: Double,
+        val tempF: Double = 0.0,
         @SerializedName("uv")
-        val uv: Double,
+        val uv: Double = 0.0,
         @SerializedName("vis_km")
-        val visKm: Double,
+        val visKm: Double = 0.0,
         @SerializedName("vis_miles")
-        val visMiles: Double,
+        val visMiles: Double = 0.0,
         @SerializedName("wind_degree")
-        val windDegree: Int,
+        val windDegree: Int = 0,
         @SerializedName("wind_dir")
-        val windDir: String,
+        val windDir: String = "",
         @SerializedName("wind_kph")
-        val windKph: Double,
+        val windKph: Double = 0.0,
         @SerializedName("wind_mph")
-        val windMph: Double,
+        val windMph: Double = 0.0,
         @SerializedName("windchill_c")
-        val windchillC: Double,
+        val windchillC: Double = 0.0,
         @SerializedName("windchill_f")
-        val windchillF: Double
+        val windchillF: Double = 0.0
     ) {
         data class Condition(
             @SerializedName("code")
-            val code: Int,
+            val code: Int = 0,
             @SerializedName("icon")
-            val icon: String,
+            val icon: String = "",
             @SerializedName("text")
-            val text: String
+            val text: String = ""
         )
     }
 
     data class Location(
         @SerializedName("country")
-        val country: String,
+        val country: String = "",
         @SerializedName("lat")
-        val lat: Double,
+        val lat: Double = 0.0,
         @SerializedName("localtime")
-        val localtime: String,
+        val localtime: String = "",
         @SerializedName("localtime_epoch")
-        val localtimeEpoch: Int,
+        val localtimeEpoch: Int = 0,
         @SerializedName("lon")
-        val lon: Double,
+        val lon: Double = 0.0,
         @SerializedName("name")
-        val name: String,
+        val name: String = "",
         @SerializedName("region")
-        val region: String,
+        val region: String = "",
         @SerializedName("tz_id")
-        val tzId: String
+        val tzId: String = ""
     )
 }
