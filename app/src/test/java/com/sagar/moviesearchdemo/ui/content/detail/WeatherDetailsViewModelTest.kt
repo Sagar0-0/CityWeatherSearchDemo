@@ -25,6 +25,10 @@ import kotlin.test.assertIs
 
 class WeatherDetailsViewModelTest {
 
+    companion object {
+        private const val CITY_NAME_KEY = "cityName"
+    }
+
     private lateinit var repository: WeatherDetailRepository
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: WeatherDetailsViewModel
@@ -56,7 +60,7 @@ class WeatherDetailsViewModelTest {
         val response = WeatherDetailResponse()
         coEvery { repository.getWeatherDetails(any()) } returns Response.success(response)
 
-        savedStateHandle["cityName"] = "Delhi"
+        savedStateHandle[CITY_NAME_KEY] = "Delhi"
 
         viewModel.weatherDetails.test {
             assertEquals(UiState.Loading, awaitItem())
@@ -67,12 +71,11 @@ class WeatherDetailsViewModelTest {
         coVerify { repository.getWeatherDetails("Delhi") }
     }
 
-
     @Test
     fun `Repository returns null body`() = runTest {
         coEvery { repository.getWeatherDetails("Paris") } returns Response.success(null)
 
-        savedStateHandle["cityName"] = "Paris"
+        savedStateHandle[CITY_NAME_KEY] = "Paris"
 
         viewModel.weatherDetails.test {
             awaitItem() // Loading
@@ -89,7 +92,7 @@ class WeatherDetailsViewModelTest {
         val errorBody = "City not found".toResponseBody()
         coEvery { repository.getWeatherDetails("Tokyo") } returns Response.error(404, errorBody)
 
-        savedStateHandle["cityName"] = "Tokyo"
+        savedStateHandle[CITY_NAME_KEY] = "Tokyo"
 
         viewModel.weatherDetails.test {
             awaitItem() // Loading
@@ -102,9 +105,12 @@ class WeatherDetailsViewModelTest {
 
     @Test
     fun `Repository returns error with no error body`() = runTest {
-        coEvery { repository.getWeatherDetails("Mars") } returns Response.error(500, "".toResponseBody(null))
+        coEvery { repository.getWeatherDetails("Mars") } returns Response.error(
+            500,
+            "".toResponseBody(null)
+        )
 
-        savedStateHandle["cityName"] = "Mars"
+        savedStateHandle[CITY_NAME_KEY] = "Mars"
 
         viewModel.weatherDetails.test {
             awaitItem()
@@ -117,7 +123,7 @@ class WeatherDetailsViewModelTest {
 
     @Test
     fun `Fetching weather for empty city name`() = runTest {
-        savedStateHandle["cityName"] = ""
+        savedStateHandle[CITY_NAME_KEY] = ""
 
         viewModel.weatherDetails.test {
             assertEquals(UiState.Loading, awaitItem())
@@ -135,11 +141,11 @@ class WeatherDetailsViewModelTest {
         coEvery { repository.getWeatherDetails("Madrid") } returns Response.success(response2)
 
         viewModel.weatherDetails.test {
-            savedStateHandle["cityName"] = "London"
+            savedStateHandle[CITY_NAME_KEY] = "London"
             awaitItem() // Loading
             assertEquals(UiState.Success(response1), awaitItem())
 
-            savedStateHandle["cityName"] = "Madrid"
+            savedStateHandle[CITY_NAME_KEY] = "Madrid"
             awaitItem() // Loading
             assertEquals(UiState.Success(response2), awaitItem())
 
@@ -148,7 +154,6 @@ class WeatherDetailsViewModelTest {
 
         coVerify(exactly = 2) { repository.getWeatherDetails(any()) }
     }
-
 
     @Test
     fun `Handling rapid city name changes`() = runTest {
@@ -159,9 +164,9 @@ class WeatherDetailsViewModelTest {
         coEvery { repository.getWeatherDetails("Y") } returns Response.success(response)
 
         viewModel.weatherDetails.test {
-            savedStateHandle["cityName"] = "X"
+            savedStateHandle[CITY_NAME_KEY] = "X"
             advanceTimeBy(100)
-            savedStateHandle["cityName"] = "Y"
+            savedStateHandle[CITY_NAME_KEY] = "Y"
             advanceTimeBy(500)
 
             awaitItem() // Loading
