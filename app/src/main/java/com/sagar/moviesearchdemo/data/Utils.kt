@@ -9,5 +9,7 @@ inline fun <T> getApiResponse(apiCall: () -> Response<T>): Response<T> {
         apiCall()
     } catch (e: IOException) {
         Response.error(500, "Network error: ${e.localizedMessage}".toResponseBody(null))
+    } catch (e: RuntimeException) {
+        Response.error(500, "Runtime error: ${e.localizedMessage}".toResponseBody(null))
     }
 }
