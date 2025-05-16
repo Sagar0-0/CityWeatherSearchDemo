@@ -1,5 +1,8 @@
 package com.sagar.moviesearchdemo.data.list
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CitySearchResponseItem(
     val name: String = "",
     val id: Int = 0,

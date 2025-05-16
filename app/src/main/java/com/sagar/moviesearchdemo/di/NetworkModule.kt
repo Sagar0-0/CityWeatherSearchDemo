@@ -9,22 +9,34 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import okhttp3.MediaType.Companion.toMediaType
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://api.weatherapi.com/v1/"
+    private const val BASE_URL = "https://api.weatherapi.com/v1/"
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    fun provideJson(): Json {
+        return Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(json: Json): Retrofit {
+        val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
     }
 
