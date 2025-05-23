@@ -4,11 +4,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.sagar.moviesearchdemo.ui.content.detail.WeatherDetailsScreen
 import com.sagar.moviesearchdemo.ui.content.detail.WeatherDetailsViewModel
 import com.sagar.moviesearchdemo.ui.content.list.CityListScreen
@@ -19,10 +17,10 @@ fun AppScreen() {
 
     NavHost(
         navController = navController,
-        startDestination = "city_list"
+        startDestination = AppRoutes.CityList.route
     ) {
         composable(
-            "city_list",
+            route = AppRoutes.CityList.route,
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { -it/2 })
             },
@@ -31,13 +29,13 @@ fun AppScreen() {
             }
         ) {
             CityListScreen { selectedCity ->
-                navController.navigate("weather_detail/${selectedCity}")
+                navController.navigate(AppRoutes.WeatherDetail.withArgument(selectedCity))
             }
         }
 
         composable(
-            route = "weather_detail/{cityName}",
-            arguments = listOf(navArgument("cityName") { type = NavType.StringType }),
+            route = AppRoutes.WeatherDetail.route,
+            arguments = AppRoutes.WeatherDetail.arguments,
             enterTransition = {
                 slideInHorizontally(initialOffsetX = { it })
             },
