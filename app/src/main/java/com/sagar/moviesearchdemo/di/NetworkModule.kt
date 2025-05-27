@@ -47,11 +47,13 @@ object NetworkModule {
     }
 
     @Provides
+    @Singleton
     fun provideCityListRepository(api: WeatherApiService): CityListRepository {
         return CityListRepositoryImpl(api)
     }
 
     @Provides
+    @Singleton
     fun provideWeatherDetailRepository(api: WeatherApiService): WeatherDetailRepository {
         return WeatherDetailRepositoryImpl(api)
     }
